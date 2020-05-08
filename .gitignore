@@ -1,0 +1,9 @@
+*/*/.idea/*
+*.png
+*/*.png
+*/*/*.png
+*.jpg
+*/*.jpg
+*.txt
+__pycache__/*
+*/*/*/*.xml
