@@ -40,36 +40,45 @@ WHITE_KING_ID=1
 WHITE_ROOK_ID=2
 BLACK_KING_ID=4
 INITIAL_BOARD = {
-    "3x3": [
-        [BLANK_SQ_ID, BLANK_SQ_ID, WHITE_ROOK_ID],
-        [BLANK_SQ_ID, BLANK_SQ_ID, WHITE_KING_ID],
-        [BLACK_KING_ID, BLANK_SQ_ID, BLANK_SQ_ID],
-    ],
-    "4x4": [
-            [BLANK_SQ_ID,      BLANK_SQ_ID, WHITE_ROOK_ID,   BLANK_SQ_ID],
-            [BLANK_SQ_ID,      BLANK_SQ_ID, WHITE_KING_ID,   BLANK_SQ_ID],
-            [BLACK_KING_ID,    BLANK_SQ_ID, BLANK_SQ_ID,     BLANK_SQ_ID],
-            [BLANK_SQ_ID,      BLANK_SQ_ID, BLANK_SQ_ID,     BLANK_SQ_ID]
-            ],
-    "8x8": [
-            [BLANK_SQ_ID,      BLANK_SQ_ID, WHITE_ROOK_ID,   BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID],
-            [BLANK_SQ_ID,      BLANK_SQ_ID, WHITE_KING_ID,   BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID],
-            [BLACK_KING_ID,    BLANK_SQ_ID, BLANK_SQ_ID,     BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID],
-            [BLANK_SQ_ID,      BLANK_SQ_ID, BLANK_SQ_ID,     BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID],
-            [BLANK_SQ_ID,      BLANK_SQ_ID, BLANK_SQ_ID,     BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID],
-            [BLANK_SQ_ID,      BLANK_SQ_ID, BLANK_SQ_ID,     BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID],
-            [BLANK_SQ_ID,      BLANK_SQ_ID, BLANK_SQ_ID,     BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID],
-            [BLANK_SQ_ID,      BLANK_SQ_ID, BLANK_SQ_ID,     BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID]
-            ],
+    "3x3": (
+        (BLANK_SQ_ID, BLANK_SQ_ID, WHITE_ROOK_ID),
+        (BLANK_SQ_ID, BLANK_SQ_ID, WHITE_KING_ID),
+        (BLACK_KING_ID, BLANK_SQ_ID, BLANK_SQ_ID),
+    ),
+    "4x4": (
+            (BLANK_SQ_ID,      BLANK_SQ_ID, WHITE_ROOK_ID,   BLANK_SQ_ID),
+            (BLANK_SQ_ID,      BLANK_SQ_ID, WHITE_KING_ID,   BLANK_SQ_ID),
+            (BLACK_KING_ID,    BLANK_SQ_ID, BLANK_SQ_ID,     BLANK_SQ_ID),
+            (BLANK_SQ_ID,      BLANK_SQ_ID, BLANK_SQ_ID,     BLANK_SQ_ID)
+            ),
+    "8x8": (
+            (BLANK_SQ_ID,      BLANK_SQ_ID, WHITE_ROOK_ID,   BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID),
+            (BLANK_SQ_ID,      BLANK_SQ_ID, WHITE_KING_ID,   BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID),
+            (BLACK_KING_ID,    BLANK_SQ_ID, BLANK_SQ_ID,     BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID),
+            (BLANK_SQ_ID,      BLANK_SQ_ID, BLANK_SQ_ID,     BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID),
+            (BLANK_SQ_ID,      BLANK_SQ_ID, BLANK_SQ_ID,     BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID),
+            (BLANK_SQ_ID,      BLANK_SQ_ID, BLANK_SQ_ID,     BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID),
+            (BLANK_SQ_ID,      BLANK_SQ_ID, BLANK_SQ_ID,     BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID),
+            (BLANK_SQ_ID,      BLANK_SQ_ID, BLANK_SQ_ID,     BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID, BLANK_SQ_ID)
+            ),
 }
 
 class ChessEnv(discrete.DiscreteEnv):
     """Chess environment."""
     metadata = {'render.modes': ['human', 'ansi']}
 
-    def __init__(self, board_size=(4,4)):
+    def __init__(self, board_size=(4,4), dump_st_file=False, dump_st_image=False, enable_log=False):
 
+        self.glb_dump_st_file = dump_st_file
+        self.glb_dump_st_image = dump_st_image
+        self.glb_enable_log = enable_log
         self.state_cnt=0
+
+        if self.glb_dump_st_file:
+            logFile = 'chess_logfile.txt'
+            with open(logFile, "w") as hFile:
+                hFile.write("chess states\n\n")
+                hFile.close()
 
         self.glb_board_size_row = board_size[0]
         self.glb_board_size_col = board_size[1]
@@ -151,7 +160,8 @@ class ChessEnv(discrete.DiscreteEnv):
         self.num_rook_moves = len(self.glb_action_list) - self.glb_num_king_moves
 
         #display chess board position
-        self.display_chess_board(self.glb_initial_state)
+        if self.glb_dump_st_image:
+            self.display_chess_board(self.glb_initial_state)
         self.all_states = self.generate_all_states(self.glb_initial_state)
 
         # Create inverse mapping of states
@@ -165,7 +175,8 @@ class ChessEnv(discrete.DiscreteEnv):
         self.nS = len(self.all_states)
         self.nA = len(self.glb_action_list)
 
-        print('total number of states = ', self.nS)
+        if self.glb_enable_log:
+            print('total number of states = ', self.nS)
 
         ## Generating probability matrix
         self.P = {s: {a: [] for a in range(self.nA)} for s in range(self.nS)}
@@ -559,7 +570,7 @@ class ChessEnv(discrete.DiscreteEnv):
                     # black_king_steps = self.get_king_steps(new_black_st, white_to_move)
                     for black_step in black_king_steps:
                         new_white_st = self.update_board(new_black_st, self.glb_black_king_id, black_step)
-                        states.append(new_white_st)
+                        states.append(tuple(new_white_st))
                         if P!=None:
                             PLIST.append([prob, self.inverse_mapping[tuple(map(tuple, new_white_st))], 0, False])
                 else:
@@ -572,7 +583,7 @@ class ChessEnv(discrete.DiscreteEnv):
                         new_black_st[r][c] = -2
                         if P!=None:
                             PLIST.append([1., self.inverse_mapping[tuple(map(tuple, new_black_st))], -1., True])
-                    states.append(new_black_st)  # add check mate or stale mate
+                    states.append(tuple(new_black_st))  # add check mate or stale mate
             else:
                 idx = idx_list[iCnt]
                 iCnt += 1
@@ -613,7 +624,7 @@ class ChessEnv(discrete.DiscreteEnv):
                     #black_king_steps = self.get_king_steps(new_black_st, white_to_move)
                     for black_step in black_king_steps:
                         new_white_st = self.update_board(new_black_st, self.glb_black_king_id, black_step)
-                        states.append(new_white_st)
+                        states.append(tuple(new_white_st))
                         rew = 0
                         is_draw = self.are_kings_left(st)
                         if is_draw:
@@ -632,7 +643,7 @@ class ChessEnv(discrete.DiscreteEnv):
                         new_black_st[r][c] = -2
                         if P!=None:
                             PLIST.append([1., self.inverse_mapping[tuple(map(tuple, new_black_st))], -1., True])
-                    states.append(new_black_st)      #add check mate or stale mate
+                    states.append(tuple(new_black_st))      #add check mate or stale mate
             else:
                 idx = idx_list[iCnt]
                 iCnt += 1
@@ -658,18 +669,22 @@ class ChessEnv(discrete.DiscreteEnv):
         cnt += 1
         i=0
         while True:
-            print(i)
+            if self.glb_enable_log:
+                print("Generating state ", i)
             if i == len(states_search):
                 break
-            st = states_search[i]
+            tup_st = states_search[i]
+            st = [list(item) for item in tup_st]
             is_game_over = self.is_game_over(st)
             if is_game_over==False:
                 states = self.list_of_states_from_white_king_move(st)
                 for new_st in states:
                     if new_st not in states_search:
                         states_search.append(new_st)
-                        #self.dump_state_in_file(new_st, cnt)
-                        #self.display_chess_board(new_st, cnt)
+                        if self.glb_dump_st_file:
+                            self.dump_state_in_file(new_st, cnt)
+                        if self.glb_dump_st_image:
+                            self.display_chess_board(new_st, cnt)
                         cnt += 1
 
                 #find new states arised from rook's move
@@ -677,6 +692,10 @@ class ChessEnv(discrete.DiscreteEnv):
                 for new_st in states:
                     if new_st not in states_search:
                         states_search.append(new_st)
+                        if self.glb_dump_st_file:
+                            self.dump_state_in_file(new_st, cnt)
+                        if self.glb_dump_st_image:
+                            self.display_chess_board(new_st, cnt)
                         #self.dump_state_in_file(new_st, cnt)
                         #self.display_chess_board(new_st, cnt)
                         cnt += 1
@@ -703,10 +722,11 @@ class ChessEnv(discrete.DiscreteEnv):
         while True:
             if i == len(states_search):
                 break
-            st = states_search[i]
+            tup_st = states_search[i]
+            st = [list(item) for item in tup_st]
             is_game_over = self.is_game_over(st)
             if is_game_over==False:
-                states = self.list_of_states_from_white_king_move(st, P=P)
+                states = self.list_of_states_from_white_king_move(list(st), P=P)
                 for new_st in states:
                     if new_st not in states_search:
                         states_search.append(new_st)
@@ -715,7 +735,7 @@ class ChessEnv(discrete.DiscreteEnv):
                         cnt += 1
 
                 #find new states arised from rook's move
-                states = self.list_of_states_from_white_rook_move(st, P=P)
+                states = self.list_of_states_from_white_rook_move(list(st), P=P)
                 for new_st in states:
                     if new_st not in states_search:
                         states_search.append(new_st)
@@ -764,7 +784,7 @@ class ChessEnv(discrete.DiscreteEnv):
         xticks = self.xticks
         yticks = self.yticks
         if state_num!=None:
-            title = title + ' state ' + str(state_num)
+            title = 'state ' + str(state_num) + ' ' + title
 
         plt.figure(figsize=(4, 4))
         plt.title(title)
@@ -803,7 +823,8 @@ class ChessEnv(discrete.DiscreteEnv):
         sns.heatmap(disp_board, annot=policy_labels, xticklabels=xticks, yticklabels=yticks, fmt='', linewidths=.5,
                     cbar=False)
         plt.gcf()
-        plt.savefig('states' + '/' + title )
+        #plt.savefig('states' + '/' + title )
+        plt.savefig(title)
         #plt.show()
         plt.close()
 

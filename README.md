@@ -11,4 +11,3 @@ pip install -e git+git://github.com/ashkgin/gym-chess#egg=gym-chess
 1. Import the environment using `from gym_chess.envs import ChessEnv`
 2. Create the environment using `env = ChessEnv()`
 
-NOTE: To change the number of squares pass it in numSquares
